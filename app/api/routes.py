@@ -11,13 +11,13 @@ from pydantic import BaseModel
 
 import app.default.edit_events
 from app.api import bp
-from app.data_analysis.oee.availability import get_daily_activity_duration_dict, get_activity_duration_dict
+from app.data_analysis.oee.availability import get_activity_duration_dict
+from app.data_analysis.oee.oee import calculate_machine_oee
 from app.default import events, edit_events
 from app.default.events import UptimeWithoutJobError
 from app.default.forms import StartJobForm, RecordProductionForm, EditActivityForm, FullJobForm, \
     RecordPastProductionForm, ModifyProductionForm
 from app.default.models import Activity, ActivityCode, Machine, InputDevice, Job, ProductionQuantity
-from app.data_analysis.oee.oee import get_daily_machine_oee, calculate_machine_oee
 from app.extensions import db
 from app.login.models import User
 from config import Config
@@ -84,7 +84,6 @@ def change_machine_state():
 @bp.route('/api/activity/<activity_id>', methods=['PUT'])
 def edit_activity(activity_id=None):
     """ Edit an activity without ending it"""
-    now = datetime.now()
     form = EditActivityForm()
     new_activity = Activity.query.get_or_404(activity_id)
     if form.validate_on_submit():
@@ -108,9 +107,8 @@ def edit_activity(activity_id=None):
 
 
 @bp.route('/api/new-activity', methods=['POST'])
-def create_past_activity(activity_id=None):
+def create_past_activity():
     """ Create an activity in the past """
-    now = datetime.now()
     form = EditActivityForm()
     if form.validate_on_submit():
         start = datetime.combine(form.start_date.data, form.start_time.data)
@@ -246,7 +244,6 @@ def end_job():
 
 @bp.route('/api/edit-past-job', methods=["POST"])
 def edit_past_job():
-    now = datetime.now()
     form = FullJobForm()
     job_id = request.form.get("job_id")
     job = Job.query.get(job_id)
@@ -371,19 +368,26 @@ def edit_production(production_quantity_id):
         return make_response("Form error", 400)
 
 
-# Get OEE data
+@bp.route('/api/machine', methods=['GET'])
+def get_machine():
+    """ Get the information about a machine"""
+    machine_id = request.args.get("machine_id")
+    machine = Machine.query.get(machine_id)
+    if not machine:
+        return abort(400)
+    response = {"machine_name": machine.name,}
+    return jsonify(response)
+
+
 @bp.route('/api/oee', methods=['GET'])
 def get_oee():
     """ Get the OEE data for a machine"""
     machine_id = request.args.get("machine_id")
-    date = request.args.get("date")
-    if date:
-        try:
-            date = datetime.strptime(date, "%Y-%m-%d").date()
-        except:
-            abort(400, "Date must be in format YYYY-MM-DD")
-    else:
-        date = datetime.now().date()
+    date = request.args.get("date") or datetime.now().date().strftime("%Y-%m-%d")
+    try:
+        date = datetime.strptime(date, "%Y-%m-%d").date()
+    except (ValueError, TypeError):
+        abort(400, "Date must be in format YYYY-MM-DD")
     machine = Machine.query.get(machine_id)
     if not machine:
         return abort(400)
@@ -401,14 +405,11 @@ def get_oee():
 def get_activity_durations():
     """ Get the activity durations for a machine"""
     machine_id = request.args.get("machine_id")
-    date = request.args.get("date")
-    if date:
-        try:
-            date = datetime.strptime(date, "%Y-%m-%d").date()
-        except:
-            abort(400, "Date must be in format YYYY-MM-DD")
-    else:
-        date = datetime.now().date()
+    date = request.args.get("date") or datetime.now().date().strftime("%Y-%m-%d")
+    try:
+        date = datetime.strptime(date, "%Y-%m-%d").date()
+    except (ValueError, TypeError):
+        abort(400, "Date must be in format YYYY-MM-DD")
     machine = Machine.query.get(machine_id)
     if not machine:
         return abort(400)
