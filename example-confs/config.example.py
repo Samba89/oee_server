@@ -109,3 +109,8 @@ class Config(object):
     #     "mssql+pyodbc",
     #     query={"odbc_connect": connection_string}
     # )
+
+    # Used for custom_1 workflow. Should be a dictionary in the format
+    # {machine_id: [component1, component2, ...], ...}
+    # Allows the user to select which component failed when selecting downtime
+    COMPONENTS = {1: ["Component1", "Component2"], 2: ["Component1"]}
