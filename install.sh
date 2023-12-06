@@ -10,7 +10,7 @@ sudo apt-get update -qqq
 sudo apt-get install -qq -y git npm redis virtualenv nginx > /dev/null
 
 echo "Downloading from github..."
-git clone https://github.com/DigitME2/oee_server.git ~/oee_server --quiet --branch production --depth=1
+git clone https://github.com/DigitME2/oee_server.git ~/oee_server --quiet --branch feature_activity_code_category --depth=1
 cd ~/oee_server
 
 # Copy default config
