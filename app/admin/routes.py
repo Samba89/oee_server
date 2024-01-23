@@ -416,7 +416,7 @@ def edit_activity_code():
         activity_code.short_description = form.short_description.data
         activity_code.long_description = form.long_description.data
         activity_code.machine_state = form.machine_state.data
-        if int(form.machine_state.data) == Config.UNEXPLAINED_DOWNTIME_CODE_ID:
+        if int(form.machine_state.data) == Config.MACHINE_STATE_UNPLANNED_DOWNTIME:
             activity_code.downtime_category = form.downtime_category.data
         activity_code.graph_colour = fix_colour_code(form.graph_colour.data)
         db.session.add(activity_code)
