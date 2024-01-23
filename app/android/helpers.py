@@ -68,7 +68,7 @@ def get_job_start_data(machine: Machine) -> dict:
     return job_start_data
 
 
-def parse_cycle_time(input_type: str, json_data) -> int:
+def parse_cycle_time(input_type: str, json_data) -> float:
     match input_type:
         case "cycle_time_seconds":
             data_in = float(json_data["ideal_cycle_time"])
@@ -95,8 +95,8 @@ def parse_cycle_time(input_type: str, json_data) -> int:
             cycle_time_seconds = (1 / data_in) * 3600
 
         case "planned_qty_minutes":
-            planned_quantity = json_data["planned_quantity"]
-            planned_time = json_data["planned_time"]
+            planned_quantity = float(json_data["planned_quantity"])
+            planned_time = float(json_data["planned_time"])
             cycle_time_seconds = (planned_time * 60) / planned_quantity
 
         case "no_cycle_time":
