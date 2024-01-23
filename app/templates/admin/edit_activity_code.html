@@ -3,6 +3,7 @@
 {% block content %}
     <div class="container mt-2">
         <link href="{{ url_for('static',filename='styles/style.css') }}" type="text/css" rel="stylesheet">
+        ID = {{ activity_code_id }}
         {% if activity_code_id in default_codes %}
             <div class="alert alert-danger">
                 {{ message }}
