@@ -182,6 +182,7 @@ def edit_machine():
     if creating_new_machine:
         # Create a new machine
         machine = Machine(name="", job_number_input_type="number", active=True, end_job_on_shift_end=True)
+        machine_id = None
 
     # Otherwise, get the machine to be edited
     elif 'machine_id' in request.args:
@@ -291,7 +292,8 @@ def edit_machine():
     return render_template("admin/edit_machine.html",
                            form=form,
                            excluded_activity_code_ids=[code.id for code in machine.excluded_activity_codes],
-                           activity_codes=optional_activity_codes)
+                           activity_codes=optional_activity_codes,
+                           machine_id=machine_id)
 
 
 @bp.route('/edit-machine-group', methods=['GET', 'POST'])
